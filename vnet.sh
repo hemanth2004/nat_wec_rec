@@ -110,5 +110,9 @@ echo 'Testing https from client2'
 ip netns exec client2 curl -k https://104.16.132.229
 echo ' '
 
+echo 'Testing web server from client2'
+ip netns exec client2 curl http://192.168.10.101
+echo ' '
+
 echo 'Testing ping 8.8.8.8 from client1'
 ip netns exec client1 ping 8.8.8.8
