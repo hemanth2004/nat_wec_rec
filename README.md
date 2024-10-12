@@ -1,23 +1,47 @@
 # nat_wec_rec
+Bash script that uses network namespaces, iptables and iproute2 to create a virtual private network. Made for the WEC Systems SIG recruitment.
+
 ## How to run
-1. Navigate to the folder with vnet.sh on a terminal and execute the script with sudo perms
+Navigate to the folder with vnet.sh on a terminal and execute the script with sudo perms
 ```
 sudo bash vnet.sh
 ```
-2. Test the network using the following example commands
-**Ping client2 from client1**
+
+## Commands to test task objectives
+1. View network topology details
 ```
-sudo ip netns exec client1 ping 192.168.10.102
+sudo ip netns list
+ip addr
+sudo ip -n router addr
+sudo ip -n client1 addr
+sudo ip -n client2 addr
 ```
 
-**Ping google from the router**
+2. Check internet access from client1 and client2
 ```
-sudo ip netns exec router ping 8.8.8.8
+sudo ip netns exec client1 curl http://93.184.216.34
+sudo ip netns exec client2 curl -k https://104.16.132.229
 ```
 
-**HTTPS from client1**
+3. Check Web Server Status 
 ```
-sudo ip netns exec client1 curl -I https://142.250.72.196
+sudo ip netns exec client2 curl http://192.168.10.101
+```
+
+4. Port Forwarding 
+```
+curl http://192.168.11.1
+```
+
+5. Test firewall for outbound traffic
+Verify that HTTPS and HTTP connections are allowed
+```
+sudo ip netns exec client1 curl http://93.184.216.34
+sudo ip netns exec client2 curl -k https://104.16.132.229
+```
+Verify that non-(HTTP and HTTPS) connections are not allowed (no response since unworthy packets are dropped and not rejected)
+```
+sudo ip netns exec client1 ping 8.8.8.8
 ```
 
 ## Approach Taken
@@ -39,18 +63,17 @@ I created two clients, client1 and client2, in separate network namespaces.
 Each client was assigned a virtual Ethernet interface and connected to the router’s bridge (vbr).
 The clients were assigned IPs in 192.168.10.0/24, and default routes were set via the router’s bridge IP (192.168.10.1).
 
-4. Port Forwarding and Security \[BONUS\]:
+4. Port Forwarding and Outbound Traffic control \[BONUS\]:
 
 Forwarded incoming HTTP (port 80) traffic on the router to client1’s web server.
-The difference between receiving it at an IP and receiving it at an IP:PORT type address is that the latter lets you explicitly direct packets to a service/process.
-Also configured iptables rules to only allow outgoing traffic on HTTP (port 80) and HTTPS (port 443), while dropping all other outgoing packets for security. Although ICMP works for testing purposes.
+Also configured iptables rules to only allow outgoing traffic on HTTP (port 80) and HTTPS (port 443), while dropping all other outgoing packets for security. Even ICMP packets that support the ping command.
 
 ## Challenges Faced
 
 1. Faced issues with getting access to internet from within from the main enp0s3 interface on my Virtual Machine.
 2. Figuring out that setting up two NATs is the way to make the intermediate router namespace into an actual router was pretty challenging, else the root namespace can only be the router.
-3. Facing challenges with packet filtering of outgoing packets. For example, something like SSH still works from client1 and client2 despite having iptable rules that essentially state 'DROP ALL PACKETS', 'ALLOW ONLY TCP PACKETS WITH PORT 80 and 443'.
-4. Learning what port forwarding even is and why its hekpful was an experience.
+3. Faced challenges with packet filtering of outgoing packets. The actual firewall is to be placed in the path between router's "public IP" interface and the virtual switch interface.
+4. Learning what port forwarding is, how web servers work and why port forwarding helpful was an experience.
 
 ## Bonus Tasks
 1. Completed port forwarding to client1's web server
