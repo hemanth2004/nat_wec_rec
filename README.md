@@ -1,5 +1,5 @@
 # nat_wec_rec
-Bash script that uses network namespaces, iptables and iproute2 to create a virtual private network. Made for the WEC Systems SIG recruitment.
+Bash script that uses network namespaces, iptables and iproute2 to create a virtual private network with a firewall and port forwarding. Made for the WEC Systems SIG recruitment.
 
 ## How to run
 Navigate to the folder with vnet.sh on a terminal and execute the script with sudo perms
