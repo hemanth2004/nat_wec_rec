@@ -69,8 +69,8 @@ ip -n router link set vbr up
 ip netns exec router iptables -t nat -A PREROUTING -d 192.168.11.1 -p tcp --dport 80 -j DNAT --to-destination 192.168.10.101:80
 ip netns exec router iptables -A FORWARD -p tcp -d 192.168.10.101 --dport 80 -j ACCEPT
 
-# allow ICMP (ping) traffic
-# ip netns exec router iptables -A FORWARD -p icmp -j ACCEPT
+# explicitly stop ICMP packets including ping services
+ip netns exec router iptables -A FORWARD -p icmp -j DROP
 
 # allow only http (80) and https (443) outgoing packets
 ip netns exec router iptables -A FORWARD -j DROP
