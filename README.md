@@ -77,7 +77,7 @@ Also configured iptables rules to only allow outgoing traffic on HTTP (port 80) 
 
 ## Bonus Tasks
 1. Completed port forwarding to client1's web server
-2. Added commands to limit outbound traffic to http and https only but they don't seem to work. 
+2. Added commands to limit outbound traffic to http and https only.
 
    
 
